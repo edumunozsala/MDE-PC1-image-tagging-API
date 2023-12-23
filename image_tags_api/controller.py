@@ -1,3 +1,5 @@
+from typing import List
+
 from imagekitio import ImageKit
 import os
 import requests
@@ -86,4 +88,34 @@ def register_image_tags(imagenb64: str, min_confidence: str):
     # Guardamos la imagen en la carpeta de imagene
     models.save_image(image_bin, path)
     # Devolvemos la respuesta
+    return response
+
+def get_images_by_date(min_date: str, max_date: str):
+    # Obtenemos las imagenes entre las fechas min_date y max_date
+    pictures = models.get_images_by_date(min_date, max_date)
+    # Recorremos las imagenes y obtenemos sus tags
+    for picture in pictures:
+        picture["tags"]=models.get_tags_by_picture_id(picture["id"])
+
+    return pictures
+
+def get_images_by_date_tags(min_date: str, max_date: str, tags: List):
+    # inicializamos la respuesta
+    response=[]
+    # Obtenemos las imagenes entre las fechas min_date y max_date
+    pictures = models.get_images_by_date(min_date, max_date)
+    # Recorremos las imagenes y obtenemos sus tags
+    for picture in pictures:
+        all_tags=models.get_tags_by_picture_id(picture["id"])
+        # Añadimos los tags a la respuesta que esten en la lista de tags
+        if len(all_tags)>0:
+            #Recorremos los tags de la imagen
+            for tag in all_tags:
+                # Si el tag esta en la lista de tags, añadimos el tag a la respuesta
+                if tag["tag"] in tags:
+                    picture["tags"].append({"tag":tag["tag"],"confidence":tag["confidence"]})
+            # Si algún tag de la imagen está en la lista de tags, añadimos la imagen a la respuesta        
+            if len(picture["tags"])==len(tags):
+                response.append(picture)
+
     return response

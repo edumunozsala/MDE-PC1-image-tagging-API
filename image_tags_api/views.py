@@ -30,3 +30,44 @@ def post_image():
     response["data"]= imagenb64
 
     return response
+
+@image_bp.get('/images')
+def get_images():
+    try:
+        # Leemos el query parameter min_date
+        if 'min_date' in request.args:
+            min_date= datetime.datetime.strptime(request.args.get("min_date"), "%Y-%m-%d %H:%M:%S")
+        else:
+            min_date=""
+    except ValueError:
+        return make_response({"description": "min_date debe ser una fecha en formato %Y-%m-%d %H:%M:%S"}, 400)
+
+    try:
+        # Leemos el query parameter max_date
+        if 'max_date' in request.args:
+            max_date= datetime.datetime.strptime(request.args.get("max_date"), "%Y-%m-%d %H:%M:%S")
+        else:
+            max_date=""
+            
+    except ValueError:
+        return make_response({"description": "max_date debe ser una fecha en formato %Y-%m-%d %H:%M:%S"}, 400)
+
+    try:
+        # Leemos el query parameter tags
+        if 'tags' in request.args:
+            tags= request.args.get("tags").split(",")
+            # Eliminamos los tags duplicados
+            tags = list(dict.fromkeys(tags))
+        else:
+            tags=[]
+    except ValueError:
+        return make_response({"description": "tags debe ser una lista de tags separados por comas"}, 400)
+
+    # Obtenemos las imagenes con las tags y fecha de creacion entre min_date y max_date
+    if len(tags)>0:
+        response= controller.get_images_by_date_tags(min_date, max_date, tags)
+    else:
+        response= controller.get_images_by_date(min_date, max_date)
+
+    return response
+
