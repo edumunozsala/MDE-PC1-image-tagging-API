@@ -1,5 +1,6 @@
 from flask import Blueprint, request, make_response
 import datetime
+from uuid import UUID
 import os
 
 from . import controller
@@ -68,6 +69,24 @@ def get_images():
         response= controller.get_images_by_date_tags(min_date, max_date, tags)
     else:
         response= controller.get_images_by_date(min_date, max_date)
+
+    return response
+
+@image_bp.get('/image')
+def get_image():
+    try:
+        # Leemos el query parameter id
+        if 'id' in request.args:
+            picture_id= request.args.get("id")
+            # Comprobamos que el id es un uuid version 4 valido
+            _ = UUID(picture_id, version=4)
+        else:
+            return make_response({"description": "el parametro id es obligatorio"}, 400)
+    except ValueError:
+        return make_response({"description": "el parametro id debe ser una cadena uuid valida"}, 400)
+
+    #Obtenemos la imagen y sus tags de la base de datos
+    response= controller.get_image_by_id(picture_id)
 
     return response
 

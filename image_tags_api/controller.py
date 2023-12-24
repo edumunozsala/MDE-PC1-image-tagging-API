@@ -93,9 +93,6 @@ def register_image_tags(imagenb64: str, min_confidence: str):
 def get_images_by_date(min_date: str, max_date: str):
     # Obtenemos las imagenes entre las fechas min_date y max_date
     pictures = models.get_images_by_date(min_date, max_date)
-    # Recorremos las imagenes y obtenemos sus tags
-    for picture in pictures:
-        picture["tags"]=models.get_tags_by_picture_id(picture["id"])
 
     return pictures
 
@@ -104,17 +101,25 @@ def get_images_by_date_tags(min_date: str, max_date: str, tags: List):
     response=[]
     # Obtenemos las imagenes entre las fechas min_date y max_date
     pictures = models.get_images_by_date(min_date, max_date)
-    # Recorremos las imagenes y obtenemos sus tags
+    # Recorremos las imagenes y buscamos las que tienen todas las etiquetas
     for picture in pictures:
-        all_tags=models.get_tags_by_picture_id(picture["id"])
-        # Añadimos los tags a la respuesta que esten en la lista de tags
-        if len(all_tags)>0:
-            # Asignamos las tags de la imagen a la imagen
-            picture["tags"] = all_tags
-            # Extraemos las tags de la imagen que esten en la lista de tags
-            tags_encontrados=[tag["tag"] for tag in all_tags if tag['tag'] in tags]
-            # Si todas las taga de la imagen está en la lista de tags, añadimos la imagen a la respuesta        
+        # Si la imagen tiene etiquetas, las buscamos en las etiquetas del usuario
+        if len(picture["tags"])>0:
+            # Si la imagen tiene todas las etiquetas del usuario, la añadimos a la respues
+            tags_encontrados=[tag["tag"] for tag in picture["tags"] if tag['tag'] in tags]
             if len(tags_encontrados)==len(tags):
                 response.append(picture)
 
     return response
+
+def get_image_by_id(id: str):
+    # Obtenemos la imagen por su id
+    picture = models.get_image_by_id(id)
+    # Si picture contiene el path de la imagen
+    if "path" in picture:
+        # Leemos la imagen de la carpeta de imagenes y eliminamos la key path de la respuesta
+        image_str = models.read_image(picture.pop("path", None))
+        # Incluimos la imagen en la respuesta en formato base64 y tipo string
+        picture["data"]=base64.b64encode(image_str).decode()
+    
+    return picture
