@@ -109,13 +109,12 @@ def get_images_by_date_tags(min_date: str, max_date: str, tags: List):
         all_tags=models.get_tags_by_picture_id(picture["id"])
         # Añadimos los tags a la respuesta que esten en la lista de tags
         if len(all_tags)>0:
-            #Recorremos los tags de la imagen
-            for tag in all_tags:
-                # Si el tag esta en la lista de tags, añadimos el tag a la respuesta
-                if tag["tag"] in tags:
-                    picture["tags"].append({"tag":tag["tag"],"confidence":tag["confidence"]})
-            # Si algún tag de la imagen está en la lista de tags, añadimos la imagen a la respuesta        
-            if len(picture["tags"])==len(tags):
+            # Asignamos las tags de la imagen a la imagen
+            picture["tags"] = all_tags
+            # Extraemos las tags de la imagen que esten en la lista de tags
+            tags_encontrados=[tag["tag"] for tag in all_tags if tag['tag'] in tags]
+            # Si todas las taga de la imagen está en la lista de tags, añadimos la imagen a la respuesta        
+            if len(tags_encontrados)==len(tags):
                 response.append(picture)
 
     return response
