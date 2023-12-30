@@ -1,3 +1,5 @@
+from typing import List
+
 from imagekitio import ImageKit
 import os
 import requests
@@ -87,3 +89,57 @@ def register_image_tags(imagenb64: str, min_confidence: str):
     models.save_image(image_bin, path)
     # Devolvemos la respuesta
     return response
+
+def get_images_by_date(min_date: str, max_date: str):
+    # Obtenemos las imagenes entre las fechas min_date y max_date
+    pictures = models.get_images_by_date(min_date, max_date)
+
+    return pictures
+
+def get_images_by_date_tags(min_date: str, max_date: str, tags: List):
+    # inicializamos la respuesta
+    response=[]
+    # Obtenemos las imagenes entre las fechas min_date y max_date
+    pictures = models.get_images_by_date(min_date, max_date)
+    # Recorremos las imagenes y buscamos las que tienen todas las etiquetas
+    for picture in pictures:
+        # Si la imagen tiene etiquetas, las buscamos en las etiquetas del usuario
+        if len(picture["tags"])>0:
+            # Si la imagen tiene todas las etiquetas del usuario, la añadimos a la respues
+            tags_encontrados=[tag["tag"] for tag in picture["tags"] if tag['tag'] in tags]
+            if len(tags_encontrados)==len(tags):
+                response.append(picture)
+
+    return response
+
+def get_image_by_id(id: str):
+    # Obtenemos la imagen por su id
+    picture = models.get_image_by_id(id)
+    # Si picture contiene el path de la imagen
+    if "path" in picture:
+        # Leemos la imagen de la carpeta de imagenes y eliminamos la key path de la respuesta
+        image_str = models.read_image(picture.pop("path", None))
+        # Incluimos la imagen en la respuesta en formato base64 y tipo string
+        picture["data"]=base64.b64encode(image_str).decode()
+    
+    return picture
+
+def get_tags_by_date(min_date: str, max_date: str):
+    # Inicializamos el diccionario de etiquetas
+    tags={}
+    # Obtenemos las imagenes y sus tags entre las fechas min_date y max_date
+    pictures = models.get_images_by_date(min_date, max_date)
+    # Recorremos las imagenes y extraemos sus tags
+    for picture in pictures:
+        # Si la imagen tiene etiquetas
+        if len(picture["tags"])>0:
+            # Recorremos las etiquetas y añadimos el tag a la lista de tags
+            for tag in picture["tags"]:
+                # Si ya tenemos la tag
+                if tag['tag'] in tags:
+                    #tags[tag['tag']]["n"]+=1# tags[tag['tag']]["n"]+1
+                    tags[tag['tag']]["confidences"].append(tag['confidence'])
+                else:
+                    tags[tag['tag']] = {"confidences":[tag['confidence']]} 
+
+    return tags

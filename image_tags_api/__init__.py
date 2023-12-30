@@ -21,7 +21,10 @@ def create_app():
     #os.environ["MYSQL_USER_DATABASE"]="Pictures"
 
     # Import views
-    from . import views
-    app.register_blueprint(views.image_bp)
+    from image_tags_api.image_view import image_bp
+    from image_tags_api.tag_view import tag_bp
+    
+    app.register_blueprint(image_bp)
+    app.register_blueprint(tag_bp)
 
     return app
