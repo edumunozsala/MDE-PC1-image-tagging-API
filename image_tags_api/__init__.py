@@ -15,15 +15,10 @@ def create_app():
     os.environ["IMAGEKIT_PUBLIC_KEY"] = data['imagekitio']['public_key']
     os.environ["IMAGEKIT_PRIVATE_KEY"] = data['imagekitio']['private_key']
     
-    #os.environ["IMAGE_FOLDER"]="images"
-    #os.environ["MYSQL_USERNAME"]="mbit"
-    #os.environ["MYSQL_USER_PASSWORD"]="mbit"
-    #os.environ["MYSQL_USER_DATABASE"]="Pictures"
-
     # Import views
     from image_tags_api.image_view import image_bp
     from image_tags_api.tag_view import tag_bp
-    
+    # Registramos los blueprints
     app.register_blueprint(image_bp)
     app.register_blueprint(tag_bp)
 

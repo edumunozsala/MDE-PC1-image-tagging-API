@@ -7,6 +7,20 @@ tag_bp = Blueprint('tag', __name__, url_prefix='/')
 
 @tag_bp.get('/tags')
 def get_tags():
+    """
+    Obtiene las tags de las imagenes entre min_date y max_date.
+
+    Query parameters:
+        min_date (str): Fecha minima de las imagenes en formato `YYYY-MM-DD HH:MM:SS`.
+        max_date (str): Fecha maxima de las imagenes en formato `YYYY-MM-DD HH:MM:SS`.
+
+    Returns:
+        json: 
+        
+            - `tag`: nombre de la etiqueta
+            - `n_images`: número de imágenes que tienen asociada esta tag
+            - `min_confidence`, `max_confidence`, `mean_confidence`: confianza mínima, máxima y media de esta tag para todas las imágenes con las que está asignada.
+    """
     try:
         # Leemos el query parameter min_date
         if 'min_date' in request.args:
