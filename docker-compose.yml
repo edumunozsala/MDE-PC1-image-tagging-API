@@ -4,11 +4,10 @@ name: "image-tags-api"
 services:
 
   mysql:
-    ##### CHANGE IMAGE NAME TO MYSQL:8.0
-    image: "mysql"
+    image: "mysql:8.0"
     container_name: mysql-itag
     environment:
-      # password should be stored on an .env file, and use env_file option
+      # Variable values are in .env file
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_USER_DATABASE}
       MYSQL_USER: ${MYSQL_USERNAME}
@@ -16,23 +15,16 @@ services:
     # Set the restart policy
     restart: unless-stopped
 
-    expose:
-      - 3306
-
-    ports:
-      - "3306:3306"
-
     volumes:
       - "mysql-image-tags:/var/lib/mysql/"
       - ./scripts/:/docker-entrypoint-initdb.d
 
   api-server:
-    #image: "api-image-tag"
     build: 
       context: .
     container_name: apiserver-itag
     environment:
-      # password should be stored on an .env file, and use env_file option
+      # Variable values are in .env file
       IMAGE_FOLDER: ${IMAGE_FOLDER}
       MYSQL_SERVER: mysql-itag
       MYSQL_USER_DATABASE: ${MYSQL_USER_DATABASE}
@@ -40,6 +32,7 @@ services:
       MYSQL_USER_PASSWORD: ${MYSQL_USER_PASSWORD}
     # Set the restart policy
     restart: unless-stopped
+    
     depends_on:
       - mysql
 
