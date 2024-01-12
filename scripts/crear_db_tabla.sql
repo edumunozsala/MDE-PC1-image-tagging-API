@@ -1,7 +1,7 @@
 create table Pictures.pictures (id VARCHAR(36) PRIMARY KEY, 
                                 path VARCHAR(256) NOT NULL,
                                 date VARCHAR(25) NOT NULL,
-                                size INT,
+                                size INT
                                 );
 create table Pictures.tags (tag VARCHAR(32), 
                             picture_id VARCHAR(36), 
